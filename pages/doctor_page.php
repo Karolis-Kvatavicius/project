@@ -1,4 +1,14 @@
 <?php
+session_start();
+
+if(isset($_POST['logout'])) {
+    unset($_SESSION['uname']);
+}
+
+if(!isset($_SESSION['uname'])) {
+    session_destroy();
+    header('Location: login.php');
+}
 require '../config.php';
 require '../getDoctors.php';
 ?>
@@ -11,20 +21,32 @@ require '../getDoctors.php';
     <link rel="stylesheet" href="../css/style.css">
     <title>Gydytojo puslapis</title>
 </head>
-<body>
-    <form action="" method="">
-        <select onchange="meetings(this.value)" required name="gydytojas">
-            <option selected value="">Pasirinkite gydytoja</option>
+<body onload="meetings(document.getElementById('gydytojas').value)">
+    <h1 id="greeting">Sveiki, <?php echo $_SESSION['uname'] ?></h1>
+    <form action="doctor_page.php" method="POST">
+        <select onchange="meetings(this.value)" required name="gydytojas" id="gydytojas">
+            <option value="">Pasirinkite gydytoja</option>
             <?php
             if ($result->num_rows > 0) {
                 while($row = $result->fetch_assoc()) {
-                  echo "<option value=\"".$row["id"]."\">".$row["vardas"]." ".$row["pavarde"]."</option>";
+                    if($_SESSION['id'] == $row['id']) {
+                        echo "<option selected value=\"".$row["id"]."\">".$row["vardas"]." ".$row["pavarde"]."</option>";
+                    } else {
+                        echo "<option value=\"".$row["id"]."\">".$row["vardas"]." ".$row["pavarde"]."</option>";
+                    }              
                 }
               }
             ?>
-        </select>    
+        </select> 
+        <input formnovalidate type="submit" name="logout" value="Log out">   
     </form>
-    <div id="vizitai"></div>
+    <br>
+    <div>
+        <table id="vizitai">
+
+
+        </table>
+    </div>
 
 </body>
 </html>

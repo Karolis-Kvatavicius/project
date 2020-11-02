@@ -1,4 +1,5 @@
 <?php
+session_start();
 require '../config.php';
 
 if(isset($_GET["doctor"])) {
@@ -7,17 +8,21 @@ if(isset($_GET["doctor"])) {
     $times = $mysqli->query($sql2);
 
 if (is_object($times) && $times->num_rows > 0) {
-    echo "<table>";
     echo "<tr><td>Pacientas</td><td>Vizito laikas</td></tr>";
     while($time = $times->fetch_assoc()) {
-        if($time['busena'] == 0) {
-            echo "<tr id=".$time['id']."><td>".$time['vardas']." ".$time['pavarde']."</td><td>".$time['vizito_data']." <button 
-            onclick=\"markCompleted(".$time['id'].")\">Ivykdyta</button></td></tr>";
+        if($time['busena'] == 0) { 
+            if($_GET['doctor'] != $_SESSION['id']) {
+                $str = "<tr id=".$time['id']."><td>".$time['vardas']." ".$time['pavarde']."</td><td>".$time['vizito_data']."</td></tr>";
+            } else {
+                $str = "<tr id=".$time['id']."><td>".$time['vardas']." ".$time['pavarde']."</td><td>".$time['vizito_data'].
+                " <button id=\"row".$time['id']."\" onclick=\"markCompleted(".$time['id'].")\">Ivykdyta</button>"."</td></tr>";
+            }
+            echo $str;
         } else {
-            echo "<tr style=\"text-decoration:line-through;\" id=".$time['id']."><td>".$time['vardas']." ".$time['pavarde']."</td><td>".$time['vizito_data']."</td></tr>";
+            echo "<tr style=\"text-decoration:line-through;\" id=".$time['id']."><td>".$time['vardas']." ".$time['pavarde']."</td><td>".$time['vizito_data'].
+            " <button disabled id=\"row".$time['id']."\" onclick=\"markCompleted(".$time['id'].");\">Ivykdyta</button>"."</td></tr>";
         }
     }
-    echo "</table>";
 }
 
 $mysqli->close();
